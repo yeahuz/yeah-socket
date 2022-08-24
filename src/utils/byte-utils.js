@@ -9,6 +9,8 @@ const schema = schemas({
   },
   subscribe: string,
   auth_init: string,
+  auth_confirmed: { topic: string, token: string },
+  auth_denied: null,
 });
 
 export const json_schema = JSON.stringify(schema);
