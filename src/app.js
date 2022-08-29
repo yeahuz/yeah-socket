@@ -35,6 +35,10 @@ const app = App({})
           app.publish(payload.topic, message, is_binary);
           break;
         }
+        case "auth_denied": {
+          app.publish(payload, message, is_binary);
+          break;
+        }
         default:
           break;
       }
