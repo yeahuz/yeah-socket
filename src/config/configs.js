@@ -5,6 +5,7 @@ import {
   JWT_SECRET,
   JWT_EXPIRATION,
   QR_AUTH_URI,
+  QR_AUTH_URI_DEV,
 } from "./secrets.js";
 
 export const configs = {
@@ -19,7 +20,7 @@ export const configs = {
     port: PORT_DEV,
     node_env: NODE_ENV,
     jwt_secret: JWT_SECRET,
-    qr_auth_uri: QR_AUTH_URI,
+    qr_auth_uri: QR_AUTH_URI_DEV,
     jwt_expiration: JWT_EXPIRATION,
   },
 };

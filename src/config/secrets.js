@@ -9,4 +9,5 @@ const JWT_EXPIRATION = parseInt(process.env.JWT_EXPIRATION, 10);
 
 export { PORT, PORT_DEV, PORT_STAGING, JWT_EXPIRATION };
 
-export const { NODE_ENV, JWT_SECRET, QR_AUTH_URI } = process.env;
+export const { NODE_ENV, JWT_SECRET, QR_AUTH_URI, QR_AUTH_URI_DEV } =
+  process.env;
