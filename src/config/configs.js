@@ -6,6 +6,12 @@ import {
   JWT_EXPIRATION,
   QR_AUTH_URI,
   QR_AUTH_URI_DEV,
+  NEEDS_API_URI,
+  NEEDS_API_URI_DEV,
+  NEEDS_API_TOKEN,
+  SESSION_COOKIE_NAME,
+  SESSION_COOKIE_NAME_DEV,
+  SESSION_COOKIE_SECRET,
 } from "./secrets.js";
 
 export const configs = {
@@ -15,6 +21,10 @@ export const configs = {
     jwt_secret: JWT_SECRET,
     qr_auth_uri: QR_AUTH_URI,
     jwt_expiration: JWT_EXPIRATION,
+    needs_api_uri: NEEDS_API_URI,
+    needs_api_token: NEEDS_API_TOKEN,
+    session_cookie_name: SESSION_COOKIE_NAME,
+    session_cookie_secret: SESSION_COOKIE_SECRET,
   },
   development: {
     port: PORT_DEV,
@@ -22,5 +32,9 @@ export const configs = {
     jwt_secret: JWT_SECRET,
     qr_auth_uri: QR_AUTH_URI_DEV,
     jwt_expiration: JWT_EXPIRATION,
+    needs_api_uri: NEEDS_API_URI_DEV,
+    needs_api_token: NEEDS_API_TOKEN,
+    session_cookie_name: SESSION_COOKIE_NAME_DEV,
+    session_cookie_secret: SESSION_COOKIE_SECRET,
   },
 };

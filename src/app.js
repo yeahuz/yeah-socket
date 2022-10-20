@@ -1,29 +1,16 @@
 import { App } from "uWebSockets.js";
 import { encoder } from "./utils/byte-utils.js";
-import { randomUUID } from "crypto";
-import config from "./config/index.js";
-import jwt from "jsonwebtoken";
+import { qr_auth } from "./routes/qr-auth.route.js";
+import { chat } from "./routes/chat.route.js";
+import { schema } from "./utils/byte-utils.js";
 
 const app = App({})
-  .ws("/qr-auth", {
-    idleTimeout: config.jwt_expiration - 8,
-    sendPingsAutomatically: false,
-    open: (ws) => {
-      const rand_id = randomUUID();
-      const token = jwt.sign({ data: rand_id }, config.jwt_secret, {
-        expiresIn: config.jwt_expiration,
-      });
-      ws.subscribe(rand_id);
-      ws.send(
-        encoder.encode("auth_init", `${config.qr_auth_uri}/${token}`),
-        true
-      );
-    },
-    message: (ws, message, is_binary) => {
-      const [op, payload] = encoder.decode(message);
-    },
-  })
+  .ws("/qr-auth", qr_auth)
+  .ws("/chat", chat)
   .ws("/", {
+    open: (ws) => {
+      ws.send(JSON.stringify(schema));
+    },
     message: (ws, message, is_binary) => {
       const [op, payload] = encoder.decode(message);
       switch (op) {
