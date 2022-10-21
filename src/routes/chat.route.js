@@ -11,7 +11,6 @@ export const chat = {
     });
 
     const decoded = decode_cookie(req.getHeader("cookie"));
-
     const key = req.getHeader("sec-websocket-key");
     const protocol = req.getHeader("sec-websocket-protocol");
     const extensions = req.getHeader("sec-websocket-extensions");
@@ -20,7 +19,9 @@ export const chat = {
       return res.writeStatus("401").end();
     }
 
-    const session = await needs.request(`/auth/sessions/${decoded.sid}`);
+    const session = await needs
+      .request(`/auth/sessions/${decoded.sid}`)
+      .catch(() => {});
 
     if (res.aborted) return;
 
@@ -69,6 +70,41 @@ export const chat = {
             message_id: message.id,
           }),
           is_binary
+        );
+        break;
+      }
+      case "publish_files": {
+        const message = await needs.request(`/chats/${payload.chat_id}/files`, {
+          data: {
+            sender_id: ws.user_id,
+            files: payload.files,
+          },
+        });
+
+        ws.publish(
+          payload.chat_id,
+          encoder.encode("new_message", message),
+          is_binary
+        );
+
+        ws.send(
+          encoder.encode("message_sent", {
+            temp_id: payload.temp_id,
+            message_id: message.id,
+          }),
+          is_binary
+        );
+        break;
+      }
+      case "publish_photos": {
+        const message = await needs.request(
+          `/chats/${payload.chat_id}/photos`,
+          {
+            data: {
+              sender_id: ws.user_id,
+              photos: payload.photos,
+            },
+          }
         );
         break;
       }

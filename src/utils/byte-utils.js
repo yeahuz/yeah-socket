@@ -1,4 +1,4 @@
-import { PackBytes, string, schemas, bits } from "packbytes";
+import { PackBytes, string, schemas, bits, array } from "packbytes";
 
 export const schema = schemas({
   auth_scan: {
@@ -18,9 +18,34 @@ export const schema = schemas({
     content: string,
     temp_id: string,
   },
+  publish_files: {
+    chat_id: string,
+    files: array(string),
+    temp_id: string,
+  },
   message_sent: {
     temp_id: string,
     message_id: bits(32),
+  },
+  new_files: {
+    sender_id: bits(32),
+    reply_to: bits(32),
+    attachments: array({
+      resource_id: string,
+      name: string,
+      size: bits(32),
+      type: string,
+      url: string,
+      id: bits(32),
+    }),
+    id: bits(32),
+    chat_id: bits(32),
+    type: string,
+    created_at: string,
+  },
+  files_sent: {
+    temp_id: string,
+    message: bits(32),
   },
   new_message: {
     id: bits(32),
@@ -30,6 +55,14 @@ export const schema = schemas({
     sender_id: bits(32),
     reply_to: bits(32),
     content: string,
+    attachments: array({
+      resource_id: string,
+      name: string,
+      size: bits(32),
+      type: string,
+      url: string,
+      id: bits(32),
+    }),
   },
 });
 
