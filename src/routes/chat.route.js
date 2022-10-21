@@ -3,6 +3,8 @@ import { needs } from "../api/needs.api.js";
 import { encoder, schema } from "../utils/byte-utils.js";
 
 export const chat = {
+  idleTimeout: 112,
+  sendPingsAutomatically: false,
   upgrade: async (res, req, context) => {
     res.onAborted(() => {
       res.aborted = true;
@@ -46,18 +48,28 @@ export const chat = {
   message: async (ws, message, is_binary) => {
     const [op, payload] = encoder.decode(message);
     switch (op) {
-      case "new_message": {
+      case "publish_message": {
+        const message = await needs.request(
+          `/chats/${payload.chat_id}/messages`,
+          {
+            data: {
+              sender_id: ws.user_id,
+              content: payload.content,
+            },
+          }
+        );
         ws.publish(
-          payload.topic,
-          encoder.encode("new_message", payload),
+          payload.chat_id,
+          encoder.encode("new_message", message),
           is_binary
         );
-        needs.request(`/chats/${payload.topic}/messages`, {
-          data: {
-            sender_id: ws.user_id,
-            content: payload.content,
-          },
-        });
+        ws.send(
+          encoder.encode("message_sent", {
+            temp_id: payload.temp_id,
+            message_id: message.id,
+          }),
+          is_binary
+        );
         break;
       }
       default:
