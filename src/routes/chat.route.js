@@ -15,7 +15,7 @@ export const chat = {
     const protocol = req.getHeader("sec-websocket-protocol");
     const extensions = req.getHeader("sec-websocket-extensions");
 
-    if (!decoded) {
+    if (!decoded.sid) {
       return res.writeStatus("401").end();
     }
 
