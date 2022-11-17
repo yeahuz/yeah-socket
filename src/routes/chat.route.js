@@ -65,19 +65,19 @@ export const chat = {
           is_binary
         );
         ws.send(
-          encoder.encode("message_sent", {
-            temp_id: payload.temp_id,
-            message_id: message.id,
-          }),
+          encoder.encode(
+            "message_sent",
+            Object.assign(message, { temp_id: payload.temp_id })
+          ),
           is_binary
         );
         break;
       }
-      case "publish_files": {
+      case "publish_file": {
         const message = await needs.request(`/chats/${payload.chat_id}/files`, {
           data: {
             sender_id: ws.user_id,
-            files: payload.files,
+            file: payload.file,
           },
         });
 
@@ -88,12 +88,13 @@ export const chat = {
         );
 
         ws.send(
-          encoder.encode("message_sent", {
-            temp_id: payload.temp_id,
-            message_id: message.id,
-          }),
+          encoder.encode(
+            "message_sent",
+            Object.assign(message, { temp_id: payload.temp_id })
+          ),
           is_binary
         );
+
         break;
       }
       case "publish_photos": {
@@ -105,6 +106,20 @@ export const chat = {
               photos: payload.photos,
             },
           }
+        );
+
+        ws.publish(
+          payload.chat_id,
+          encoder.encode("new_message", message),
+          is_binary
+        );
+
+        ws.send(
+          encoder.encode(
+            "message_sent",
+            Object.assign(message, { temp_id: payload.temp_id })
+          ),
+          is_binary
         );
         break;
       }

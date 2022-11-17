@@ -2,9 +2,8 @@ module.exports = {
   apps: [
     {
       name: "needs-socket",
-      script: "npm",
-      args: "start",
-      env_production: {
+      script: "./src/index.js",
+      env: {
         NODE_ENV: "production",
       },
     },

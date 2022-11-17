@@ -18,14 +18,33 @@ export const schema = schemas({
     content: string,
     temp_id: string,
   },
-  publish_files: {
+  publish_file: {
     chat_id: string,
-    files: array(string),
+    file: string,
+    temp_id: string,
+  },
+  publish_photos: {
+    chat_id: string,
+    photos: array(string),
     temp_id: string,
   },
   message_sent: {
     temp_id: string,
-    message_id: bits(32),
+    id: bits(32),
+    chat_id: bits(32),
+    type: string,
+    created_at: string,
+    sender_id: bits(32),
+    reply_to: bits(32),
+    content: string,
+    attachments: array({
+      resource_id: string,
+      name: string,
+      size: bits(32),
+      type: string,
+      url: string,
+      id: bits(32),
+    }),
   },
   new_files: {
     sender_id: bits(32),
