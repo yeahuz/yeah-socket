@@ -25,8 +25,10 @@ function get_key(secret) {
 
 const key = get_key(config.session_cookie_secret);
 
-export function decode_cookie(cookie) {
-  const [_, value] = cookie.split("=");
+export function decode_cookie(cookie, name) {
+  const cookies = cookie.split("; ");
+  const cookiesMap = new Map(cookies.map((cookie) => cookie.split('=')));
+  const value = cookiesMap.get(name);
   const split = decodeURIComponent(value).split(";");
   const cipher_b64 = split[0];
   const nonce_b64 = split[1];

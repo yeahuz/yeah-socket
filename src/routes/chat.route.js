@@ -10,7 +10,7 @@ export const chat = {
       res.aborted = true;
     });
 
-    const decoded = decode_cookie(req.getHeader("cookie"));
+    const decoded = decode_cookie(req.getHeader("cookie"), "needs_session");
     const key = req.getHeader("sec-websocket-key");
     const protocol = req.getHeader("sec-websocket-protocol");
     const extensions = req.getHeader("sec-websocket-extensions");
