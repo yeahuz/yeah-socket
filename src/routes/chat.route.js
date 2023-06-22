@@ -2,7 +2,7 @@ import { decode_cookie } from "../utils/cookie.js";
 import { needs } from "../api/needs.api.js";
 import { encoder, schema } from "../utils/byte-utils.js";
 
-export const chat = {
+export const chat = (app) => ({
   idleTimeout: 112,
   sendPingsAutomatically: false,
   upgrade: async (res, req, context) => {
@@ -21,7 +21,7 @@ export const chat = {
 
     const session = await needs
       .request(`/auth/sessions/${decoded.sid}`)
-      .catch(() => {});
+      .catch(console.log);
 
     if (res.aborted) return;
 
@@ -43,12 +43,16 @@ export const chat = {
     for (const chat of chats) {
       ws.subscribe(String(chat.id));
     }
+    ws.subscribe(String(ws.user_id))
     ws.send(JSON.stringify(schema));
   },
 
   message: async (ws, message, is_binary) => {
     const [op, payload] = encoder.decode(message);
     switch (op) {
+      case "subscribe": {
+        ws.subscribe(payload)
+      } break;
       case "publish_message": {
         const message = await needs.request(
           `/chats/${payload.chat_id}/messages`,
@@ -71,8 +75,7 @@ export const chat = {
           ),
           is_binary
         );
-        break;
-      }
+      } break;
       case "publish_file": {
         const message = await needs.request(`/chats/${payload.chat_id}/files`, {
           data: {
@@ -94,9 +97,7 @@ export const chat = {
           ),
           is_binary
         );
-
-        break;
-      }
+      } break;
       case "publish_photos": {
         const message = await needs.request(
           `/chats/${payload.chat_id}/photos`,
@@ -121,10 +122,9 @@ export const chat = {
           ),
           is_binary
         );
-        break;
-      }
+      } break;
       default:
         break;
     }
   },
-};
+});

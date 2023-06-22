@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import { randomUUID } from "crypto";
 import { encoder, schema } from "../utils/byte-utils.js";
 
-export const qr_auth = {
+export const qr_auth = (app) => ({
   idleTimeout: config.jwt_expiration - 8,
   sendPingsAutomatically: false,
   open: (ws) => {
@@ -28,4 +28,4 @@ export const qr_auth = {
         break;
     }
   },
-};
+});

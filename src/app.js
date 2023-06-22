@@ -2,10 +2,30 @@ import { App } from "uWebSockets.js";
 import { qr_auth } from "./routes/qr-auth.route.js";
 import { chat } from "./routes/chat.route.js";
 import { home } from "./routes/home.route.js";
+import { sub } from "./utils/redis.js";
+import { encoder } from "./utils/byte-utils.js";
 
 const app = App({})
-  .ws("/qr-auth", qr_auth)
-  .ws("/chat", chat)
-  .ws("/", home);
+app.ws("/", home(app))
+app.ws("/chat", chat(app))
+app.ws("/chat", qr_auth(app))
+
+
+sub.on("message", (channel, payload) => {
+  switch (channel) {
+    case "chats/new":
+      const chat = JSON.parse(payload)
+      for (const member of chat.members) {
+        app.publish(String(member.id), encoder.encode("new_chat", chat), true)
+      }
+      break
+    case "messages/new":
+      const message = JSON.parse(payload)
+      app.publish(String(message.chat_id), encoder.encode("new_message", message), true)
+      break
+    default:
+      break;
+  }
+})
 
 export { app };

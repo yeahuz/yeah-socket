@@ -1,6 +1,18 @@
 import { PackBytes, string, schemas, bits, array } from "packbytes";
 
 export const schema = schemas({
+  new_chat: {
+    id: bits(32),
+    created_by: bits(32),
+    posting: {
+      id: bits(32),
+      cover_url: string,
+      url: string,
+      title: string
+    },
+    members: array({ name: string, id: bits(32) }),
+    url: string
+  },
   auth_scan: {
     topic: string,
     name: string,
