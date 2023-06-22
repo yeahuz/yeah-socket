@@ -13,11 +13,11 @@ export const qr_auth = (app) => ({
     const [op, payload] = encoder.decode(message);
     switch (op) {
       case "auth_init": {
-        const rand_id = randomUUID();
-        const token = jwt.sign({ data: rand_id }, config.jwt_secret, {
+        const topic = randomUUID();
+        const token = jwt.sign({ data: topic }, config.jwt_secret, {
           expiresIn: config.jwt_expiration,
         });
-        ws.subscribe(rand_id);
+        ws.subscribe(topic);
         ws.send(
           encoder.encode("auth_pending", `${config.qr_auth_uri}/${token}`),
           true

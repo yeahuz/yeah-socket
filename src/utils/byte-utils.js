@@ -22,7 +22,7 @@ export const schema = schemas({
   auth_init: null,
   auth_pending: string,
   auth_confirmed: { topic: string, token: string },
-  auth_denied: string,
+  auth_denied: null,
   ping: null,
   pong: null,
   publish_message: {
