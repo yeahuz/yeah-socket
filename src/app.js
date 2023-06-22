@@ -23,6 +23,10 @@ sub.on("message", (channel, payload) => {
       const message = JSON.parse(payload)
       app.publish(String(message.chat_id), encoder.encode("new_message", message), true)
     } break;
+    case "messages/sent": {
+      const message = JSON.parse(payload)
+      app.publish(String(message.sender_id), encoder.encode("message_sent", message), true)
+    } break
     case "auth/qr": {
       const message = JSON.parse(payload)
       app.publish(String(message.topic), encoder.encode(message.op, message), true)

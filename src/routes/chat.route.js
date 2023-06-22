@@ -1,6 +1,7 @@
 import { decode_cookie } from "../utils/cookie.js";
 import { needs } from "../api/needs.api.js";
 import { encoder, schema } from "../utils/byte-utils.js";
+import { pub } from "../utils/redis.js";
 
 export const chat = (app) => ({
   idleTimeout: 112,
@@ -54,25 +55,22 @@ export const chat = (app) => ({
         ws.subscribe(payload)
       } break;
       case "publish_message": {
-        const message = await needs.request(
-          `/chats/${payload.chat_id}/messages`,
-          {
-            data: {
-              sender_id: ws.user_id,
-              content: payload.content,
-            },
-          }
-        );
+        const message = {
+          chat_id: payload.chat_id,
+          sender_id: ws.user_id,
+          content: payload.content,
+          temp_id: payload.temp_id,
+          created_at: new Date().toISOString(),
+          type: "text",
+          attachments: []
+        }
+
+        pub.lpush("messages/list", JSON.stringify(message));
+        pub.publish("api/messages", JSON.stringify({ queue: "messages/list" }))
+
         ws.publish(
-          payload.chat_id,
+          message.chat_id,
           encoder.encode("new_message", message),
-          is_binary
-        );
-        ws.send(
-          encoder.encode(
-            "message_sent",
-            Object.assign(message, { temp_id: payload.temp_id })
-          ),
           is_binary
         );
       } break;
