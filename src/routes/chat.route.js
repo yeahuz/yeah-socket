@@ -75,26 +75,39 @@ export const chat = (app) => ({
         );
       } break;
       case "publish_file": {
-        const message = await needs.request(`/chats/${payload.chat_id}/files`, {
-          data: {
-            sender_id: ws.user_id,
-            file: payload.file,
-          },
-        });
+        const message = {
+          chat_id: payload.chat_id,
+          temp_id: payload.temp_id,
+          file: payload.file,
+          sender_id: ws.user_id,
+          created_at: new Date().toISOString(),
+          type: "file",
+          content: '',
+        }
 
-        ws.publish(
-          payload.chat_id,
-          encoder.encode("new_message", message),
-          is_binary
-        );
+        pub.lpush("messages/list", JSON.stringify(message))
+        pub.publish("api/messages", JSON.stringify({ queue: "messages/list" }))
+        ws.publish(payload.chat_id, encoder.encode("new_message", Object.assign(message, { attachments: [payload.file] })), true)
+        // const message = await needs.request(`/chats/${payload.chat_id}/files`, {
+        //   data: {
+        //     sender_id: ws.user_id,
+        //     file: payload.file,
+        //   },
+        // });
 
-        ws.send(
-          encoder.encode(
-            "message_sent",
-            Object.assign(message, { temp_id: payload.temp_id })
-          ),
-          is_binary
-        );
+        // ws.publish(
+        //   payload.chat_id,
+        //   encoder.encode("new_message", message),
+        //   is_binary
+        // );
+        //
+        // ws.send(
+        //   encoder.encode(
+        //     "message_sent",
+        //     Object.assign(message, { temp_id: payload.temp_id })
+        //   ),
+        //   is_binary
+        // );
       } break;
       case "publish_photos": {
         const message = await needs.request(

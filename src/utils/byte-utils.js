@@ -32,7 +32,11 @@ export const schema = schemas({
   },
   publish_file: {
     chat_id: string,
-    file: string,
+    file: {
+      id: string,
+      name: string,
+      size: bits(32)
+    },
     temp_id: string,
   },
   publish_photos: {
@@ -87,11 +91,8 @@ export const schema = schemas({
     reply_to: bits(32),
     content: string,
     attachments: array({
-      resource_id: string,
       name: string,
       size: bits(32),
-      type: string,
-      url: string,
       id: bits(32),
     }),
   },
