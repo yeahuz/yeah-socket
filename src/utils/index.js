@@ -6,3 +6,7 @@ export async function option(promise) {
     return [null, err];
   }
 }
+
+export function add_prefix(prefix, str) {
+  return prefix + "/" + str
+}

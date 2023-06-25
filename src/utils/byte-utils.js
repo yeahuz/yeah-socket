@@ -1,4 +1,4 @@
-import { PackBytes, string, schemas, bits, array, bool } from "packbytes";
+import { PackBytes, string, schemas, bits, array, float } from "packbytes";
 
 export const schema = schemas({
   new_chat: {
@@ -47,6 +47,7 @@ export const schema = schemas({
     chat_id: string,
     content: string,
     temp_id: string,
+    created_at: float(64),
     type: string,
     attachments: array({
       resource_id: string,

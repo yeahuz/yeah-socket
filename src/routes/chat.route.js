@@ -2,6 +2,7 @@ import { decode_cookie } from "../utils/cookie.js";
 import { needs } from "../api/needs.api.js";
 import { encoder, schema } from "../utils/byte-utils.js";
 import { pub } from "../utils/redis.js";
+import { add_prefix } from "../utils/index.js";
 
 export const chat = (app) => ({
   idleTimeout: 112,
@@ -42,9 +43,9 @@ export const chat = (app) => ({
   open: async (ws) => {
     const chats = await needs.request(`/users/${ws.user_id}/chats`);
     for (const chat of chats) {
-      ws.subscribe(String(chat.id));
+      ws.subscribe(add_prefix("chats", chat.id))
     }
-    ws.subscribe(String(ws.user_id))
+    ws.subscribe(add_prefix("users", ws.user_id))
     ws.send(JSON.stringify(schema));
   },
 
@@ -60,8 +61,8 @@ export const chat = (app) => ({
           sender_id: ws.user_id,
           content: payload.content,
           temp_id: payload.temp_id,
-          created_at: new Date().toISOString(),
           type: payload.type,
+          created_at: payload.created_at,
           attachments: payload.attachments
         }
 
@@ -69,7 +70,7 @@ export const chat = (app) => ({
         pub.publish("api/messages", JSON.stringify({ queue: "messages/list" }))
 
         ws.publish(
-          message.chat_id,
+          add_prefix("chats", message.chat_id),
           encoder.encode("new_message", message),
           is_binary
         );
