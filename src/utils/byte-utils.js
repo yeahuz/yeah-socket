@@ -1,4 +1,4 @@
-import { PackBytes, string, schemas, bits, array } from "packbytes";
+import { PackBytes, string, schemas, bits, array, bool } from "packbytes";
 
 export const schema = schemas({
   new_chat: {
@@ -25,25 +25,6 @@ export const schema = schemas({
   auth_denied: null,
   ping: null,
   pong: null,
-  publish_message: {
-    chat_id: string,
-    content: string,
-    temp_id: string,
-  },
-  publish_file: {
-    chat_id: string,
-    file: {
-      id: string,
-      name: string,
-      size: bits(32)
-    },
-    temp_id: string,
-  },
-  publish_photos: {
-    chat_id: string,
-    photos: array(string),
-    temp_id: string,
-  },
   message_sent: {
     temp_id: string,
     id: bits(32),
@@ -62,39 +43,18 @@ export const schema = schemas({
       id: bits(32),
     }),
   },
-  new_files: {
-    sender_id: bits(32),
-    reply_to: bits(32),
+  new_message: {
+    chat_id: string,
+    content: string,
+    temp_id: string,
+    type: string,
     attachments: array({
       resource_id: string,
       name: string,
       size: bits(32),
       type: string,
       url: string,
-      id: bits(32),
-    }),
-    id: bits(32),
-    chat_id: bits(32),
-    type: string,
-    created_at: string,
-  },
-  files_sent: {
-    temp_id: string,
-    message: bits(32),
-  },
-  new_message: {
-    id: bits(32),
-    chat_id: bits(32),
-    type: string,
-    created_at: string,
-    sender_id: bits(32),
-    reply_to: bits(32),
-    content: string,
-    attachments: array({
-      name: string,
-      size: bits(32),
-      id: bits(32),
-    }),
+    })
   },
 });
 

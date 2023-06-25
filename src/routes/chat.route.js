@@ -54,15 +54,15 @@ export const chat = (app) => ({
       case "subscribe": {
         ws.subscribe(payload)
       } break;
-      case "publish_message": {
+      case "new_message": {
         const message = {
           chat_id: payload.chat_id,
           sender_id: ws.user_id,
           content: payload.content,
           temp_id: payload.temp_id,
           created_at: new Date().toISOString(),
-          type: "text",
-          attachments: []
+          type: payload.type,
+          attachments: payload.attachments
         }
 
         pub.lpush("messages/list", JSON.stringify(message));
@@ -71,66 +71,6 @@ export const chat = (app) => ({
         ws.publish(
           message.chat_id,
           encoder.encode("new_message", message),
-          is_binary
-        );
-      } break;
-      case "publish_file": {
-        const message = {
-          chat_id: payload.chat_id,
-          temp_id: payload.temp_id,
-          file: payload.file,
-          sender_id: ws.user_id,
-          created_at: new Date().toISOString(),
-          type: "file",
-          content: '',
-        }
-
-        pub.lpush("messages/list", JSON.stringify(message))
-        pub.publish("api/messages", JSON.stringify({ queue: "messages/list" }))
-        ws.publish(payload.chat_id, encoder.encode("new_message", Object.assign(message, { attachments: [payload.file] })), true)
-        // const message = await needs.request(`/chats/${payload.chat_id}/files`, {
-        //   data: {
-        //     sender_id: ws.user_id,
-        //     file: payload.file,
-        //   },
-        // });
-
-        // ws.publish(
-        //   payload.chat_id,
-        //   encoder.encode("new_message", message),
-        //   is_binary
-        // );
-        //
-        // ws.send(
-        //   encoder.encode(
-        //     "message_sent",
-        //     Object.assign(message, { temp_id: payload.temp_id })
-        //   ),
-        //   is_binary
-        // );
-      } break;
-      case "publish_photos": {
-        const message = await needs.request(
-          `/chats/${payload.chat_id}/photos`,
-          {
-            data: {
-              sender_id: ws.user_id,
-              photos: payload.photos,
-            },
-          }
-        );
-
-        ws.publish(
-          payload.chat_id,
-          encoder.encode("new_message", message),
-          is_binary
-        );
-
-        ws.send(
-          encoder.encode(
-            "message_sent",
-            Object.assign(message, { temp_id: payload.temp_id })
-          ),
           is_binary
         );
       } break;
