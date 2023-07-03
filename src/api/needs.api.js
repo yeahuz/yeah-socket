@@ -4,6 +4,7 @@ class Needs {
   constructor(sid, base_uri) {
     this.sid = sid;
     this.base_uri = base_uri;
+    this.sid_promise = null;
   }
 
   static async build(base_uri) {
@@ -11,8 +12,8 @@ class Needs {
     return new Needs(sid, base_uri);
   }
 
-  static async get_session() {
-    if (config.needs_api_sid) return config.needs_api_sid;
+  static async get_session(force = false) {
+    if (config.needs_api_sid && !force) return config.needs_api_sid;
     const response = await fetch(
       config.needs_api_uri + "/auth/external/login",
       {
@@ -31,6 +32,12 @@ class Needs {
     if (!response.ok) return Promise.reject(json);
     await update_env({ NEEDS_API_SID: session.id });
     return session.id;
+  }
+
+  async refresh_session() {
+    await update_env({ NEEDS_API_SID: "" });
+    const sid = await Needs.get_session(true).catch(console.error);
+    this.sid = sid;
   }
 
   async request(url, { method, data, query, lang = "en" } = {}) {
@@ -55,6 +62,16 @@ class Needs {
         "User-Agent": "Needs-Socket/1.0 Linux (yeah; wss://needs.uz)",
       },
     });
+
+    if (response.status === 403) {
+      if (!this.sid_promise) {
+        this.sid_promise = this.refresh_session().then(() => {
+          this.sid_promise = null;
+        })
+      }
+
+      return this.sid_promise.then(() => this.request(url, { method, data, query, lang }))
+    }
 
     const json = await response.json().catch(() => { });
 
