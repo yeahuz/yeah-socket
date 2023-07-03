@@ -28,10 +28,10 @@ class Needs {
         method: "POST",
       }
     );
-    const session = await response.json().catch(() => { });
+    const json = await response.json().catch(() => { });
     if (!response.ok) return Promise.reject(json);
-    await update_env({ NEEDS_API_SID: session.id });
-    return session.id;
+    await update_env({ NEEDS_API_SID: json.id });
+    return json.id;
   }
 
   async refresh_session() {
