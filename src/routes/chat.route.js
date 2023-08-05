@@ -66,14 +66,17 @@ export const chat = (app) => ({
           attachments: payload.attachments
         }
 
-        pub.lpush("messages/list", JSON.stringify(message));
-        pub.publish("api/messages", JSON.stringify({ queue: "messages/list" }))
+        pub.lpush("chat", JSON.stringify(message));
+        pub.publish("api", JSON.stringify({ op, payload: { queue: "chat" } }))
 
         ws.publish(
           add_prefix("chats", message.chat_id),
           encoder.encode("new_message", message),
           is_binary
         );
+      } break;
+      case "read_message": {
+        pub.publish("api", JSON.stringify({ op, payload: Object.assign(payload, { user_id: ws.user_id }) }))
       } break;
       default:
         break;

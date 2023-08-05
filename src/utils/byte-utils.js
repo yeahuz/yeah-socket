@@ -13,6 +13,10 @@ export const schema = schemas({
     members: array({ name: string, id: bits(32) }),
     url: string
   },
+  read_message: {
+    id: bits(32),
+    chat_id: bits(32)
+  },
   auth_scan: {
     topic: string,
     name: string,
