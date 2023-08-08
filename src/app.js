@@ -11,17 +11,17 @@ app.ws("/", home(app))
 app.ws("/chat", chat(app))
 app.ws("/qr-auth", qr_auth(app))
 
-
 sub.on("message", (channel, payload) => {
   switch (channel) {
     case "chats/new": {
       const chat = JSON.parse(payload)
       for (const member of chat.members) {
-        app.publish(add_prefix("users", member.id), encoder.encode("new_chat", chat), true)
+        app.publish(add_prefix("users", member), encoder.encode("new_chat", chat), true)
       }
     } break;
     case "messages/new": {
       const message = JSON.parse(payload)
+      if (!message.temp_id) Object.assign(message, { temp_id: "" });
       app.publish(add_prefix("chats", message.chat_id), encoder.encode("new_message", message), true)
     } break;
     case "messages/sent": {
