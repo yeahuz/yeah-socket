@@ -6,31 +6,31 @@ import { sub } from "./utils/redis.js";
 import { encoder } from "./utils/byte-utils.js";
 import { add_prefix } from "./utils/index.js";
 
-const app = App({})
-app.ws("/", home(app))
-app.ws("/chat", chat(app))
-app.ws("/qr-auth", qr_auth(app))
+const app = App({});
+app.ws("/", home(app));
+app.ws("/chat", chat(app));
+app.ws("/qr-auth", qr_auth(app));
 
 sub.on("message", (channel, payload) => {
   switch (channel) {
     case "chats/new": {
-      const chat = JSON.parse(payload)
+      const chat = JSON.parse(payload);
       for (const member of chat.members) {
-        app.publish(add_prefix("users", member), encoder.encode("new_chat", chat), true)
+        app.publish(add_prefix("users", member), encoder.encode("new_chat", chat), true);
       }
     } break;
     case "messages/new": {
-      const message = JSON.parse(payload)
+      const message = JSON.parse(payload);
       if (!message.temp_id) Object.assign(message, { temp_id: "" });
-      app.publish(add_prefix("chats", message.chat_id), encoder.encode("new_message", message), true)
+      app.publish(add_prefix("chats", message.chat_id), encoder.encode("new_message", message), true);
     } break;
     case "messages/sent": {
-      const message = JSON.parse(payload)
-      app.publish(add_prefix("users", message.sender_id), encoder.encode("message_sent", message), true)
+      const message = JSON.parse(payload);
+      app.publish(add_prefix("users", message.sender_id), encoder.encode("message_sent", message), true);
     } break;
     case "auth/qr": {
-      const message = JSON.parse(payload)
-      app.publish(String(message.topic), encoder.encode(message.op, message), true)
+      const message = JSON.parse(payload);
+      app.publish(String(message.topic), encoder.encode(message.op, message), true);
     } break;
     default:
       break;

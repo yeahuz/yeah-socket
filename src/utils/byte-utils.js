@@ -1,4 +1,4 @@
-import { PackBytes, string, schemas, bits, array, float } from "packbytes";
+import { PackBytes, string, schemas, bits, array } from "packbytes";
 
 export const schema = schemas({
   new_chat: {
@@ -12,7 +12,7 @@ export const schema = schemas({
     },
     url: string
   },
-  read_message: {
+  message_read: {
     id: bits(32),
     chat_id: bits(32)
   },
@@ -46,12 +46,13 @@ export const schema = schemas({
       id: bits(32),
     }),
   },
-  new_message: {
-    chat_id: bits(32),
+  message: {
+    id: bits(32),
+    chat_id: string,
     content: string,
-    temp_id: string,
     created_at: string,
     type: string,
+    sender_id: bits(32),
     attachments: array({
       resource_id: string,
       name: string,

@@ -43,9 +43,10 @@ export const chat = (app) => ({
   open: async (ws) => {
     const chats = await needs.request(`/users/${ws.user_id}/chats`);
     for (const chat of chats) {
-      ws.subscribe(add_prefix("chats", chat.id))
+      console.log("USER: ", ws.user_id, "CHAT:", chat.id);
+      ws.subscribe(add_prefix("chats", chat.id));
     }
-    ws.subscribe(add_prefix("users", ws.user_id))
+    ws.subscribe(add_prefix("users", ws.user_id));
     ws.send(JSON.stringify(schema));
   },
 
@@ -53,30 +54,18 @@ export const chat = (app) => ({
     const [op, payload] = encoder.decode(message);
     switch (op) {
       case "subscribe": {
-        ws.subscribe(payload)
+        ws.subscribe(payload);
       } break;
-      case "new_message": {
-        const message = {
-          chat_id: payload.chat_id,
-          sender_id: ws.user_id,
-          content: payload.content,
-          temp_id: payload.temp_id,
-          type: payload.type,
-          created_at: payload.created_at,
-          attachments: payload.attachments
-        }
-
-        pub.lpush("chat", JSON.stringify(message));
-        pub.publish("api", JSON.stringify({ op, payload: { queue: "chat" } }))
-
+      case "message": {
         ws.publish(
-          add_prefix("chats", message.chat_id),
-          encoder.encode("new_message", message),
+          add_prefix("chats", payload.chat_id),
+          message,
           is_binary
         );
       } break;
-      case "read_message": {
-        pub.publish("api", JSON.stringify({ op, payload: Object.assign(payload, { user_id: ws.user_id }) }))
+      case "message_read": {
+        console.log({ payload });
+        ws.publish(add_prefix("chats", payload.chat_id), message, is_binary);
       } break;
       default:
         break;
