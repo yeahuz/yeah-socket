@@ -48,7 +48,7 @@ export const schema = schemas({
   },
   message: {
     id: bits(32),
-    chat_id: string,
+    chat_id: bits(32),
     content: string,
     created_at: string,
     type: string,

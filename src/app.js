@@ -21,8 +21,7 @@ sub.on("message", (channel, payload) => {
     } break;
     case "messages/new": {
       const message = JSON.parse(payload);
-      if (!message.temp_id) Object.assign(message, { temp_id: "" });
-      app.publish(add_prefix("chats", message.chat_id), encoder.encode("new_message", message), true);
+      app.publish(add_prefix("chats", message.chat_id), encoder.encode("message", message), true);
     } break;
     case "auth/qr": {
       const message = JSON.parse(payload);
