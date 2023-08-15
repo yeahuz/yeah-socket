@@ -43,7 +43,6 @@ export const chat = (app) => ({
   open: async (ws) => {
     const chats = await needs.request(`/users/${ws.user_id}/chats`);
     for (const chat of chats) {
-      console.log("USER: ", ws.user_id, "CHAT:", chat.id);
       ws.subscribe(add_prefix("chats", chat.id));
     }
     ws.subscribe(add_prefix("users", ws.user_id));
@@ -64,7 +63,6 @@ export const chat = (app) => ({
         );
       } break;
       case "message_read": {
-        console.log({ payload });
         ws.publish(add_prefix("chats", payload.chat_id), message, is_binary);
       } break;
       default:
