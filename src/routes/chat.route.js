@@ -1,10 +1,9 @@
 import { decode_cookie } from "../utils/cookie.js";
-import { needs } from "../api/needs.api.js";
 import { encoder, schema } from "../utils/byte-utils.js";
-import { pub } from "../utils/redis.js";
 import { add_prefix } from "../utils/index.js";
+import { query } from "../db/pool.js";
 
-export const chat = (app) => ({
+export let chat = (app) => ({
   idleTimeout: 112,
   sendPingsAutomatically: false,
   upgrade: async (res, req, context) => {
@@ -12,18 +11,19 @@ export const chat = (app) => ({
       res.aborted = true;
     });
 
-    const decoded = decode_cookie(req.getHeader("cookie"), "needs_session");
-    const key = req.getHeader("sec-websocket-key");
-    const protocol = req.getHeader("sec-websocket-protocol");
-    const extensions = req.getHeader("sec-websocket-extensions");
+    let decoded = decode_cookie(req.getHeader("cookie"), "needs_session");
+    let key = req.getHeader("sec-websocket-key");
+    let protocol = req.getHeader("sec-websocket-protocol");
+    let extensions = req.getHeader("sec-websocket-extensions");
 
     if (!decoded.sid) {
       return res.writeStatus("401").end();
     }
 
-    const session = await needs
-      .request(`/auth/sessions/${decoded.sid}`)
-      .catch(console.log);
+    //TODO: handle sid not being UUID4
+    let { rows: [session] } = await query(`select *,
+      case when now() > expires_at then 1 else 0 end as expired
+      from sessions where id = $1`, [decoded.sid]);
 
     if (res.aborted) return;
 
@@ -41,8 +41,8 @@ export const chat = (app) => ({
   },
 
   open: async (ws) => {
-    const chats = await needs.request(`/users/${ws.user_id}/chats`);
-    for (const chat of chats) {
+    let { rows } = await query(`select * from chats c join chat_members cm on cm.chat_id = c.id and cm.user_id = $1`, [ws.user_id]);
+    for (let chat of rows) {
       ws.subscribe(add_prefix("chats", chat.id));
     }
     ws.subscribe(add_prefix("users", ws.user_id));
@@ -50,7 +50,7 @@ export const chat = (app) => ({
   },
 
   message: async (ws, message, is_binary) => {
-    const [op, payload] = encoder.decode(message);
+    let [op, payload] = encoder.decode(message);
     switch (op) {
       case "subscribe": {
         ws.subscribe(payload);

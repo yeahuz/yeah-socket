@@ -18,6 +18,8 @@ import {
   SESSION_COOKIE_NAME_DEV,
   SESSION_COOKIE_NAME_STAGING,
   SESSION_COOKIE_SECRET,
+  POSTGRES_URI,
+  POSTGRES_URI_DEV
 } from "./secrets.js";
 
 export const configs = {
@@ -33,6 +35,7 @@ export const configs = {
     needs_api_sid: NEEDS_API_SID,
     session_cookie_name: SESSION_COOKIE_NAME,
     session_cookie_secret: SESSION_COOKIE_SECRET,
+    postgres_uri: POSTGRES_URI
   },
   development: {
     port: PORT_DEV,
@@ -46,6 +49,7 @@ export const configs = {
     needs_api_sid: NEEDS_API_SID,
     session_cookie_name: SESSION_COOKIE_NAME_DEV,
     session_cookie_secret: SESSION_COOKIE_SECRET,
+    postgres_uri: POSTGRES_URI_DEV
   },
   staging: {
     port: PORT_STAGING,
@@ -59,5 +63,6 @@ export const configs = {
     needs_api_sid: NEEDS_API_SID,
     session_cookie_name: SESSION_COOKIE_NAME_STAGING,
     session_cookie_secret: SESSION_COOKIE_SECRET,
+    postgres_uri: POSTGRES_URI_DEV
   },
 };
